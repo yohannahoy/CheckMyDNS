@@ -4,10 +4,10 @@
 # L'objectif de ce script est de vérifier le bon fonctionnement de votre dyndns notamment en utilisant dnssec      #
 ####################################################################################################################
 
-#NomDom="XXX.net"
-#LstNdM="xx yy zz"
+NomDom="xxx.net"
+LstNdM="xx yy zz"
 #NomCheck="yyy.net"
-#SrvSec="9.9.9.9"
+SrvSec="zzzzzz"
 
 ####################################################################################################################
 # Obj : Ajout de la couleur pour les résultats                                                                     #
@@ -37,6 +37,11 @@ geoiplookup $addr -f GeoIP.dat
 #Le flag ad nous informe de la fiabilité de la réponse.
 #La variable ipfromdns contient l'adresse ip déclarée en enregistrement dns.
 #A chaque itération, la boucle vérifie les valeurs soumisent dans SdNomDom
+
+
+DATE=`date +"%d-%m-%d_%H-%M"`
+echo "Résultat des resquetes DNS du $DATE" > Rapport_DNS_$DATE.txt
+
 for NdSD in $LstNdM; do
 	SdNomDom=$NdSD"."$NomDom
 	nb=$(dig +dnssec $SdNomDom @$SrvSec |grep flag|grep -c ad)
@@ -44,7 +49,10 @@ for NdSD in $LstNdM; do
 		 then
 		ipfromdns=$(dig +short $SdNomDom @$SrvSec)
 		echo -e "\nPour $NdSD : $ipfromdns"
-		geoiplookup $ipfromdns -f GeoIP.dat
+		echo -e "\nPour $NdSD : $ipfromdns" >> Rapport_DNS_$DATE.txt
+		geo=$(geoiplookup $ipfromdns -f GeoIP.dat)
+		echo $geo
+		echo $geo >> Rapport_DNS_$DATE.txt
 	else
 		echo -e "\n${red}Votre resolveur n'a pas validé l'authenticité de votre adresse ip dynamique${normal}"
 	fi
